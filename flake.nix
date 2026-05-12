@@ -11,11 +11,11 @@
     outputs = { self, nixpkgs, ... }@args: {
         nixosModules.default = { pkgs, ... }: {
             nixpkgs.overlays = [(final: prev: {
-                manager = self.packages.${final.system}.manager;
+                supervisor = self.packages.${final.system}.supervisor;
             })];
 
             environment.systemPackages = [
-                pkgs.manager
+                pkgs.supervisor
             ];
         };
 

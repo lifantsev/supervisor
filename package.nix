@@ -24,10 +24,8 @@
             pkgs.jq
         ];
     } ./daemon.sh;
-in {
-    inherit supervisor-daemon;
 
-    default = build "supervisor" {
+    supervisor = build "supervisor" {
         execer = [
             "cannot:${supervisor-daemon}/bin/supervisor-daemon"
         ];
@@ -38,4 +36,8 @@ in {
             pkgs.inotify-tools
         ];
     } ./supervisor.sh;
+in {
+    inherit supervisor supervisor-daemon;
+
+    default = supervisor;
 }
