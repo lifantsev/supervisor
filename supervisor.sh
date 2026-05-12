@@ -42,6 +42,8 @@ if [ "$command" == "daemon" ]; then
             *) echo "unrecognized daemon action[$action]"; finish 1 ;;
         esac
     fi
+
+    finish 0
 fi
 
 if [ -z "$(daemon_pid)" ]; then
