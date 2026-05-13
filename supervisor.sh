@@ -6,7 +6,7 @@ lga start
 
 function finish() { lga finish ; exit "$1"; }
 
-function daemon_pid() { pgrep -f supervisor-daemon ; }
+function daemon_pid() { pgrep supervisor-daem ; }
 
 function start_daemon() {
     supervisor-daemon > /dev/null 2>&1 &
