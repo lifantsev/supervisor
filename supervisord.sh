@@ -1,7 +1,7 @@
 # WARN NO SPECIAL CHARS ALLOWED IN JSON NAMES
-export LGSTEM=supervisor-daemon
+export LGSTEM=supervisord
 
-activity_file="/tmp/supervisor-activity"
+activity_file="/tmp/supervisor-activities"
 config_file="$XDG_CONFIG_HOME/supervisor/config.json"
 
 function finish() { lga finish; exit "$1"; }

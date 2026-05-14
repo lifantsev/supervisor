@@ -3,7 +3,7 @@
     lga = lg.packages.${system}.lga;
     lge = lg.packages.${system}.lge;
 
-    build = name: { inputs, execer?[], keep?{} }: file: pkgs.resholve.writeScriptBin name {
+    build = name: { inputs, execer?[], keep?{} }: pkgs.resholve.writeScriptBin name {
         interpreter = "${pkgs.bash}/bin/bash";
 
         inherit keep;
@@ -17,9 +17,9 @@
             lga lge
             pkgs.coreutils
         ];
-    } (builtins.readFile file);
+    } (builtins.readFile (./. + "/${name}.sh"));
 
-    supervisor-daemon = build "supervisor-daemon" {
+    supervisord = build "supervisord" {
         keep.source = [ "$updateloop_sh" ];
 
         inputs = [
@@ -27,21 +27,21 @@
             pkgs.gnused
             pkgs.jq
         ];
-    } ./daemon.sh;
+    };
 
     supervisor = build "supervisor" {
         execer = [
-            "cannot:${supervisor-daemon}/bin/supervisor-daemon"
+            "cannot:${supervisord}/bin/supervisord"
         ];
 
         inputs = [
-            supervisor-daemon
+            supervisord
             pkgs.procps
             pkgs.inotify-tools
         ];
-    } ./supervisor.sh;
+    };
 in {
-    inherit supervisor supervisor-daemon;
+    inherit supervisor supervisord;
 
     default = supervisor;
 }

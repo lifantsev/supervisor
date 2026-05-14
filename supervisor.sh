@@ -1,15 +1,15 @@
 export LGSTEM=supervisor
 
-activity_file="/tmp/supervisor-activity"
+activity_file="/tmp/supervisor-activities"
 
 lga start
 
 function finish() { lga finish ; exit "$1"; }
 
-function daemon_pid() { pgrep supervisor-daem ; }
+function daemon_pid() { pgrep supervisord ; }
 
 function start_daemon() {
-    supervisor-daemon > /dev/null 2>&1 &
+    supervisord > /dev/null 2>&1 &
     disown
     echo "started daemon[$(daemon_pid)]"
 }

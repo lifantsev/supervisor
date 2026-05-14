@@ -88,6 +88,7 @@ programs.supervisor = {
     enable = true;
 
     config = {
+        # put the json config here
         any.latetime.sh = "[ $(date +%H) -ge 22 ] || [ $(date +%H) -le 4 ]";
     };
 
@@ -95,7 +96,7 @@ programs.supervisor = {
     updateloop.sh = /*sh*/ "while :; do sleep 1; echo update; done";
 
     # or use one of the premade scripts
-    updateloop.use = "niri"; # use niri event stream
+    updateloop.use = "niri";
 };
 ```
 
