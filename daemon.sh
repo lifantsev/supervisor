@@ -120,14 +120,8 @@ function save_activities() { # no args
     fi
 }
 
-function check_class_activities() { # <class> <add_any>
+function check_class_activities() { # <class>
     class="$1"
-    add_any="$2"
-
-    if [ -z "$(json "to_entries | .[] | select(.key == \"$class\")")" ]
-    then lga I "class[$class] is not registered in cfg..."; return; fi
-
-    (( add_any )) && add_activity "$class.any"
 
     if [ -z "$(json "to_entries | .[] | select(.key == \"$class\").value")" ]
     then lga I "class[$class] has no registered activities..."; return; fi
@@ -167,8 +161,14 @@ while IFS= read -r; do
     class="$(get_class)"
     lga . "have class[$class]"
 
-    check_class_activities "$class" 1
-    check_class_activities "any" 0
+    if [ -z "$(json "to_entries | .[] | select(.key == \"$class\")")" ]
+    then lga I "class[$class] is not registered in cfg..."; 
+    else
+        check_class_activities "$class"
+        [ -z "$activities" ] && add_activity "$class.other"
+    fi
+
+    check_class_activities "any"
     save_activities
 
     lga finish
