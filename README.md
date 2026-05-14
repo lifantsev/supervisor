@@ -11,7 +11,7 @@ queries (these autostart the daemon)
 supervisor # print out the current activities
 |> browser.instagram
 
-supervisor # print out the current activities
+supervisor
 |> terminal.other
 
 supervisor "onchange" # wait for current activities to change, then print the new ones
@@ -44,7 +44,6 @@ Every class has an implicit activity `other`, which if matches the class matches
 
 ``` json
 {
-    "mpv": "",
     "browser": {
         "instagram": {
             "match": [ "www.instagram.com", "reels" ],
@@ -56,6 +55,7 @@ Every class has an implicit activity `other`, which if matches the class matches
         "editor": "^nvim",
         "files": "^lf"
     },
+    "mpv": "",
     "any": {
         "latetime": {
             "sh": "[ $(date +%H) -ge 22 ] || [ $(date +%H) -le 4 ]"
@@ -66,7 +66,7 @@ Every class has an implicit activity `other`, which if matches the class matches
 
 ### update-loop.sh
 
-Set up `$XDG_CONFIG_HOME/supervisor/update-loop.sh` to a script that is some sort of event stream. The supervisor will start the script and watch its output. Every time it prints a line, it will update the currently active activities.
+Set up `$XDG_CONFIG_HOME/supervisor/update-loop.sh` to a script that prints out one line every time the supervisor should update the currently active activities.
 
 ``` sh
 niri msg --json event-stream |
