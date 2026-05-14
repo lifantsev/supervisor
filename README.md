@@ -74,6 +74,29 @@ niri msg --json event-stream |
     jq --unbuffered -r 'select(has("WindowFocusChanged") or has("WindowOpenedOrChanged")) | "update"'
 ```
 
-### flake
+### home module
+
+You can use the home module to set this stuff up too:
+
+``` nix
+# flake.nix
+inputs.supervisor.url = "github:lifantsev/supervisor";
+
+# home.nix
+imports = [ inputs.supervisor.homeManagerModules.default ];
+
+programs.supervisor = {
+    enable = true;
+
+    config = {
+        any.latetime.sh = "[ $(date +%H) -ge 22 ] || [ $(date +%H) -le 4 ]";
+    };
+
+    updateloop.sh = "my update loop script";
+
+    # or, instead of manually setting the script, use one of the premade ones
+    updateloop.use = "niri"; # script using niri event stream
+};
+```
 
 ## Installation
