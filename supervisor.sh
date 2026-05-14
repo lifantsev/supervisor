@@ -46,19 +46,33 @@ if [ "$command" == "daemon" ]; then
     finish 0
 fi
 
-if [ -z "$(daemon_pid)" ]; then
+autostart_daemon=0
+[ -z "$(daemon_pid)" ] && autostart_daemon=1
+
+if ((autostart_daemon)); then
+    lga . "auto starting daemon"
     start_daemon &>/dev/null
 fi
 
 case "$command" in
-    "") cat "$activity_file"
+    "") 
+        if (( autostart_daemon )); then
+            lga . "waiting for daemon to touch activity file"
+            inotifywait -t 1 "$activity_file" &>/dev/null
+            lga . "finished waiting"
+        fi
+
+        lga . "catting activity file[$activity_file]"
+        cat "$activity_file"
         ;;
     onchange)
+        lga . "waiting for daemon to modify activity file"
         if [ -n "$action" ] # timeout
         then inotifywait -e modify -t "$action" "$activity_file" &>/dev/null
         else inotifywait -e modify "$activity_file" &>/dev/null
         fi
 
+        lga . "finished waiting, catting activity file[$activity_file]"
         cat "$activity_file"
         ;;
     *) echo "unrecognized command[$command]"; finish 1 ;;
