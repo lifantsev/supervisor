@@ -175,6 +175,8 @@ while IFS= read -r; do
 done < <(
     updateloop_sh="$XDG_CONFIG_HOME/supervisor/update-loop.sh"
 
+    echo update # when launched, update right away
+
     if [ -f "$updateloop_sh" ]
     then . "$updateloop_sh"
     else while true; do sleep 1; echo update; done
