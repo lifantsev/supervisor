@@ -4,15 +4,15 @@ Define activities by window class/title and shell scripts, then query the daemon
 
 - [Usage](#Usage), [Configuration](#Configuration), [Installation](#Installation)
 
-## Quick Start
-
 ## Usage
 
 queries (these autostart the daemon)
 ``` sh
 supervisor # print out the current activities
-|> browser.any
 |> browser.instagram
+
+supervisor # print out the current activities
+|> terminal.other
 
 supervisor "onchange" # wait for current activities to change, then print the new ones
 supervisor "onchange" <timeout> # only wait for <timeout> seconds before printing
@@ -40,7 +40,7 @@ Set up activities in `$XDG_CONFIG_HOME/supervisor/config.json`. They are categor
 
 There is also a special class `any`. Activities under this key will match regardless of window class.
 
-Every class has an implicit activity `any`, which matches as long as the class matches (ie `browser.any`). Note that `any.any` does not exist, because it would be redundant. In order to just include `<class>.any` and not register any other activities, set the class key to an empty string.
+Every class has an implicit activity `other`, which if matches the class matches but none of its activities do (ie `browser.other`). Note that `any.other` does not exist. In order to register a class without any activities, set the class key to an empty string.
 
 ``` json
 {
@@ -51,7 +51,6 @@ Every class has an implicit activity `any`, which matches as long as the class m
             "exclude": "Messages"
         },
         "search": "www.google.com",
-        "youtube": "www.youtube.com"
     },
     "terminal": {
         "editor": "^nvim",
@@ -92,11 +91,31 @@ programs.supervisor = {
         any.latetime.sh = "[ $(date +%H) -ge 22 ] || [ $(date +%H) -le 4 ]";
     };
 
-    updateloop.sh = "my update loop script";
+    # set the update script yourself
+    updateloop.sh = /*sh*/ "while :; do sleep 1; echo update; done";
 
-    # or, instead of manually setting the script, use one of the premade ones
-    updateloop.use = "niri"; # script using niri event stream
+    # or use one of the premade scripts
+    updateloop.use = "niri"; # use niri event stream
 };
 ```
 
 ## Installation
+
+### flake
+
+``` nix
+# flake.nix
+inputs.supervisor.url = "github:lifantsev/supervisor";
+
+# config.nix
+imports = [ inputs.supervisor.nixosModules.default ]; # add pkgs.supervisor overlay & install the package
+
+# or install without overlay
+environment.systemPackages = [
+    inputs.supervisor.packages.default
+];
+```
+
+### other
+
+If you are not a nix user, you can download the shellscripts and install them however you want. Note that `supervisor.sh` expects `daemon.sh` to be installed as `supervisord`. Also, the scripts depend on [lg](https://github.com/lifantsev/lg), remove any calls to `lga` and `lge` if you don't have those installed.
