@@ -29,6 +29,7 @@ function any_hits() { # <str> <regexs>
     fi
 }
 
+# return whether or not str matches any of the regexs referenced
 function any_hits_json() { # <str> <key to regexs> <on_empty>
     str="$1"
     key="$2"
@@ -56,6 +57,26 @@ function any_hits_json() { # <str> <key to regexs> <on_empty>
     any_hits "$str" "$regexs"
 }
 
+# return whether or not the referenced shellscript succeeds
+function sh_pass_json() { # <key to sh> <on_empty>
+    key="$1"
+    on_empty="$2"
+
+    lga F "sh_pass_json() with key[$key] on_empty[$on_empty]"
+
+    sh="$(json ".$key")"
+
+    if [ -z "$sh" ] || [ "$sh" == null ]; then
+        lga . "no shellscript found, returning on_empty[$on_empty]"
+        return "$on_empty"
+    fi
+
+    if eval "$sh"
+    then lga . "sh passed"; return 0
+    else lga . "sh failed"; return 1
+    fi
+}
+
 function get_class() { # no args
     class="$(eval "$GET_WINDOW_CLASS")"
 
@@ -80,7 +101,7 @@ function add_activity() { # <activity>
     activities="$(echo "$1" ; echo "$activities")"
 }
 
-function process_activities() { # no args
+function save_activities() { # no args
     lga . "$(echo -e "process_activities[\n$activities\n]")"
 
     file_contents="$(cat "$activity_file")"
@@ -99,24 +120,17 @@ function process_activities() { # no args
     fi
 }
 
-lga "starting the supervisor daemon"
-
-while true; do
-    sleep 1
-    lga start
-    activities=""
-
-    lga . "getting class"
-    class="$(get_class)"
-    lga . "have class[$class]"
+function check_class_activities() { # <class> <add_any>
+    class="$1"
+    add_any="$2"
 
     if [ -z "$(json "to_entries | .[] | select(.key == \"$class\")")" ]
-    then lga I "class[$class] is not registered in cfg..."; process_activities;  continue; fi
+    then lga I "class[$class] is not registered in cfg..."; return; fi
 
-    add_activity "$class.any"
+    (( add_any )) && add_activity "$class.any"
 
     if [ -z "$(json "to_entries | .[] | select(.key == \"$class\").value")" ]
-    then lga I "class[$class] has no registered activities..."; process_activities;  continue; fi
+    then lga I "class[$class] has no registered activities..."; return; fi
 
     # only go thru activities if there are any
     title="$(get_title)"
@@ -135,12 +149,34 @@ while true; do
             "object")
                 if ! any_hits_json "$title" "$class.$activity.match" 0; then continue; fi
                 if any_hits_json "$title" "$class.$activity.exclude" 1; then continue; fi
+                if ! sh_pass_json "$class.$activity.sh" 0; then continue; fi
                 add_activity "$class.$activity"
                 ;;
         esac
     done <<< "$(json "to_entries | .[] | select(.key == \"$class\").value | to_entries.[].key")"
+}
 
-    process_activities
+lga I "starting the supervisor daemon"
+
+while IFS= read -r; do
+    echo test
+    lga start
+    activities=""
+
+    lga . "getting class"
+    class="$(get_class)"
+    lga . "have class[$class]"
+
+    check_class_activities "$class" 1
+    check_class_activities "any" 0
+    save_activities
 
     lga finish
-done
+done < <(
+    updateloop_sh="$XDG_CONFIG_HOME/supervisor/update-loop.sh"
+
+    if [ -f "$updateloop_sh" ]
+    then . "$updateloop_sh"
+    else while true; do sleep 1; echo update; done
+    fi
+)

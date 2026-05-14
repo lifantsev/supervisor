@@ -15,8 +15,8 @@ function start_daemon() {
 }
 
 function kill_daemon() {
-    kill "$pid"
-    echo "killing daemon[$pid]"
+    kill $pid
+    echo "killing daemon"
 }
 
 command="${1:-}"

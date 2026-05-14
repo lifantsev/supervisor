@@ -3,8 +3,10 @@
     lga = lg.packages.${system}.lga;
     lge = lg.packages.${system}.lge;
 
-    build = name: { execer?[], inputs }: file: pkgs.resholve.writeScriptBin name {
+    build = name: { inputs, execer?[], keep?{} }: file: pkgs.resholve.writeScriptBin name {
         interpreter = "${pkgs.bash}/bin/bash";
+
+        inherit keep;
 
         execer = execer ++ [
             "cannot:${lga}/bin/lga"
@@ -18,6 +20,8 @@
     } (builtins.readFile file);
 
     supervisor-daemon = build "supervisor-daemon" {
+        keep.source = [ "$updateloop_sh" ];
+
         inputs = [
             pkgs.gawk
             pkgs.gnused
