@@ -47,8 +47,7 @@ if [ "$command" == "daemon" ]; then
 fi
 
 if [ -z "$(daemon_pid)" ]; then
-    echo "autostarting daemon"
-    start_daemon
+    start_daemon &>/dev/null
 fi
 
 case "$command" in
