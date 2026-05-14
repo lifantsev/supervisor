@@ -7,8 +7,6 @@
         type = lib.types.attrs;
     };
 
-    spawn-at-startup.niri = lib.mkEnableOption "configuration of niri-flake to spawn supervisor daemon at startup";
-
     updateloop = lib.mkOption {
         description = "how to set up update-loop.sh";
         default = {};

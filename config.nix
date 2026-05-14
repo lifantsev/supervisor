@@ -10,9 +10,5 @@ in lib.mkIf cfg.enable
         xdg.configFile."supervisor/config.json".text = builtins.toJSON cfg.config;
         xdg.configFile."supervisor/update-loop.sh".text = script;
     }
-
-    (lib.mkIf cfg.spawn-at-startup.niri {
-        programs.niri.settings.spawn-at-startup = [ { argv = [ "supervisor" "daemon" ];} ];
-    })
 ])
 
