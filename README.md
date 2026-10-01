@@ -2,7 +2,7 @@
 
 Define activities by window class/title and shell scripts, then query the daemon to see what activities are currently active.
 
-- [Usage](#Usage), [Configuration](#Configuration), [Installation](#Installation)
+- [usage](#Usage), [configuration](#Configuration), [installation](#Installation)
 
 ## Usage
 
